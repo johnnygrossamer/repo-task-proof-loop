@@ -62,49 +62,30 @@ And managed workflow blocks in:
 
 The managed blocks are updated in place and are designed to preserve unrelated user content outside the managed section.
 
-## Best prompt to begin work with this skill
+## Quick prompts to begin work with this skill
 
-Copy and paste this into your coding agent after installing the skill.
+Pick the prompt that matches the current task state.
+
+### Init
 
 ```text
-Use the `repo-task-proof-loop` skill for TASK_ID `<TASK_ID>` in this repository.
-
-Task source:
-- Read `<path/to/task-file.md>` if a task file exists.
-- Otherwise use the task text pasted below.
-
-Operating rules:
-- Keep all workflow artifacts inside this repo under `.agent/tasks/<TASK_ID>/`.
-- Treat `init` as a barrier step.
-- If `.agent/tasks/<TASK_ID>/` does not exist, run only `init <TASK_ID>` first. Do not spawn subagents or run `freeze`, `build`, `evidence`, `verify`, or `fix` until `init` completes and `.agent/tasks/<TASK_ID>/spec.md` exists.
-- Use existing repo guidance from `AGENTS.md` and `CLAUDE.md` if present.
-- Freeze the task into `.agent/tasks/<TASK_ID>/spec.md` with:
-  - the original task statement
-  - explicit acceptance criteria labeled AC1, AC2, ...
-  - constraints
-  - non-goals
-  - assumptions resolved narrowly
-  - a concise verification plan
-- For this task, use role-separated subagents:
-  1. spawn exactly one `task-spec-freezer`
-  2. spawn exactly one `task-builder`
-  3. continue with the same builder in `EVIDENCE` mode if supported; otherwise run a new builder in evidence-only mode
-  4. spawn exactly one fresh `task-verifier`
-  5. if the verdict is not PASS, spawn exactly one fresh `task-fixer`
-  6. then spawn exactly one fresh `task-verifier` again
-  7. repeat fix → verify until PASS or a real blocker is found
-- Never claim completion unless every acceptance criterion is PASS.
-- Before final sign-off, run the skill helper `validate --task-id <TASK_ID>` and report:
-  - files changed
-  - checks run
-  - final verdict
-  - remaining risks
-
-Task:
-<paste the task here if you are not using a task file>
+Spawn subagents. Use $repo-task-proof-loop to init NEW_TASK_ID <NEW_TASK_ID> in this repository. Keep all workflow artifacts under .agent/tasks/<NEW_TASK_ID>/.
 ```
 
-That prompt is intentionally strict. It forces the agent to create repo-local proof, keep implementation and verification separate, require `init` to finish before later phases begin, and validate before sign-off.
+### Status
+
+```text
+Spawn subagents. Use $repo-task-proof-loop to check status for EXISTING_TASK_ID <EXISTING_TASK_ID> in this repository, inspect .agent/tasks/<EXISTING_TASK_ID>/, and report the next recommended step.
+```
+
+### Build
+
+```text
+Spawn subagents. Use $repo-task-proof-loop to build EXISTING_TASK_ID <EXISTING_TASK_ID> in this repository using the existing repo-local artifacts under .agent/tasks/<EXISTING_TASK_ID>/ and continue the workflow from the current state.
+...
+```
+
+Replace `...` with either `Task file: <path/to/task-file.md>` on the next line or the task text pasted on following lines.
 
 ## Installation
 
@@ -131,7 +112,7 @@ If you use both tools on the same repository, install the skill in both location
 ## Quick start
 
 1. Install the skill in your repository.
-2. Start your coding agent with the copy-paste prompt above.
+2. Start your coding agent with the scenario prompt above that matches your task state.
 3. Let the skill initialize the repo-local task structure.
 4. Let the agent execute the workflow using role-separated subagents.
 5. Validate before sign-off.
