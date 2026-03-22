@@ -69,23 +69,24 @@ Pick the prompt that matches the current task state.
 ### Init
 
 ```text
-Spawn subagents. Use $repo-task-proof-loop to init NEW_TASK_ID <NEW_TASK_ID> in this repository. Keep all workflow artifacts under .agent/tasks/<NEW_TASK_ID>/.
+Spawn subagents. Use $repo-task-proof-loop to initialize this repository for the repo-local spec -> build -> evidence -> verify -> fix workflow. Install or refresh the project-scoped subagents, update the managed workflow guidance, and set this repo up to follow the proof-loop philosophy for future tasks.
 ```
 
 ### Status
 
 ```text
-Spawn subagents. Use $repo-task-proof-loop to check status for EXISTING_TASK_ID <EXISTING_TASK_ID> in this repository, inspect .agent/tasks/<EXISTING_TASK_ID>/, and report the next recommended step.
+Spawn subagents. Use $repo-task-proof-loop to find the existing repo-local task that matches the task described below, inspect its artifacts, and report the matched task ID, current status, and next recommended step.
+...
 ```
 
 ### Build
 
 ```text
-Spawn subagents. Use $repo-task-proof-loop to build EXISTING_TASK_ID <EXISTING_TASK_ID> in this repository using the existing repo-local artifacts under .agent/tasks/<EXISTING_TASK_ID>/ and continue the workflow from the current state.
+Spawn subagents. Use $repo-task-proof-loop to continue the task described below in this repository. Reuse the matching repo-local task if it already exists; if not, stop after explaining that init should be run first.
 ...
 ```
 
-Replace `...` with either `Task file: <path/to/task-file.md>` on the next line or the task text pasted on following lines.
+For `Status` and `Build`, replace `...` with either `Task file: <path/to/task-file.md>` on the next line or the task text pasted on following lines.
 
 ## Installation
 
