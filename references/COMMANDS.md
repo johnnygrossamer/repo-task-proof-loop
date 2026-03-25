@@ -1,6 +1,6 @@
 # Commands and role prompts
 
-Use these prompts as the parent-orchestrator language when running the workflow manually or through product-specific subagents.
+Use these prompts as the parent-orchestrator language when running the workflow manually or through Claude Code subagents.
 
 Replace `<TASK_ID>` and any placeholder text.
 

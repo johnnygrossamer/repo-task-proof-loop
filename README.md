@@ -4,9 +4,9 @@ This skill was built from [OpenClaw-RL: Train Any Agent Simply by Talking](https
 
 > "next-state signals are universal, and policy can learn from all of them simultaneously."
 
-Repo Task Proof Loop is a repo-local workflow skill for non-trivial coding tasks.
+Repo Task Proof Loop is a repo-local workflow skill for non-trivial coding tasks in Claude Code.
 
-It creates a durable task folder under `.agent/tasks/<TASK_ID>/`, installs project-scoped Codex and Claude subagents, updates `AGENTS.md` and `CLAUDE.md` with the workflow, and drives a strict implementation loop:
+It creates a durable task folder under `.agent/tasks/<TASK_ID>/`, installs project-scoped Claude Code subagents, updates `CLAUDE.md` with the workflow, and drives a strict implementation loop:
 
 `spec freeze → build → evidence → fresh verify → minimal fix → fresh verify`
 
@@ -20,7 +20,7 @@ Large coding-agent tasks often fail in predictable ways:
 - the same session both implements and judges its own work
 - acceptance criteria drift during the task
 - a later session cannot tell what was actually verified
-- repo guidance in `AGENTS.md` or `CLAUDE.md` is ignored or not reused
+- repo guidance in `CLAUDE.md` is ignored or not reused
 
 This skill addresses that by enforcing a repo-local artifact set and role-separated subagents.
 
@@ -46,12 +46,6 @@ Inside the target repository:
 Also inside the target repository:
 
 ```text
-.codex/agents/
-  task-spec-freezer.toml
-  task-builder.toml
-  task-verifier.toml
-  task-fixer.toml
-
 .claude/agents/
   task-spec-freezer.md
   task-builder.md
@@ -59,12 +53,9 @@ Also inside the target repository:
   task-fixer.md
 ```
 
-And managed workflow blocks in:
+And a managed workflow block in `CLAUDE.md`.
 
-- `AGENTS.md`
-- `CLAUDE.md`
-
-The managed blocks are updated in place and are designed to preserve unrelated user content outside the managed section.
+The managed block is updated in place and is designed to preserve unrelated user content outside the managed section.
 
 ## Quick prompts to begin work with this skill
 
@@ -73,58 +64,93 @@ Pick the prompt that matches the current task state.
 ### Init
 
 ```text
-Spawn subagents. Use $repo-task-proof-loop to initialize this repository for the repo-local spec -> build -> evidence -> verify -> fix workflow. Install or refresh the project-scoped subagents, update the managed workflow guidance, and set this repo up to follow the proof-loop philosophy for future tasks.
+Use $repo-task-proof-loop to initialize this repository for the repo-local
+spec -> build -> evidence -> verify -> fix workflow. Install or refresh
+the project-scoped subagents, update the managed workflow guidance, and set
+this repo up to follow the proof-loop philosophy for future tasks.
 ```
 
 ### Status
 
 ```text
-Spawn subagents. Use $repo-task-proof-loop to find the existing repo-local task that matches the task described below, inspect its artifacts, and report the matched task ID, current status, and next recommended step.
+Use $repo-task-proof-loop to find the existing repo-local task that matches
+the task described below, inspect its artifacts, and report the matched task ID,
+current status, and next recommended step.
 ...
 ```
 
 ### Build
 
 ```text
-Spawn subagents. Use $repo-task-proof-loop to continue the task described below in this repository. Reuse the matching repo-local task if it already exists; if not, stop after explaining that init should be run first.
+Use $repo-task-proof-loop to continue the task described below in this repository.
+Reuse the matching repo-local task if it already exists; if not, stop after
+explaining that init should be run first.
 ...
 ```
 
 For `Status` and `Build`, replace `...` with either `Task file: <path/to/task-file.md>` on the next line or the task text pasted on following lines.
 
-## Installation
+## Промпты на русском / Russian prompts
 
-Install the skill as a project skill.
+Skill понимает промпты на любом языке. Ниже — русские аналоги.
 
-### Codex
-
-Unzip or copy this directory to:
+### Инициализация
 
 ```text
-.agents/skills/repo-task-proof-loop/
+Используй $repo-task-proof-loop чтобы инициализировать этот репозиторий
+для workflow spec -> build -> evidence -> verify -> fix. Установи субагенты
+и обнови CLAUDE.md.
 ```
 
-### Claude Code
+### Статус
 
-Unzip or copy this directory to:
+```text
+Используй $repo-task-proof-loop, найди существующую задачу, соответствующую
+описанию ниже, проверь её артефакты и покажи ID задачи, текущий статус
+и рекомендуемый следующий шаг.
+...
+```
+
+### Сборка / продолжение работы
+
+```text
+Используй $repo-task-proof-loop, продолжи задачу описанную ниже.
+Если задача уже существует в репозитории — используй её.
+Если нет — останови и объясни что сначала нужен init.
+...
+```
+
+### Полный цикл
+
+```text
+Используй $repo-task-proof-loop, запусти полный цикл для задачи ниже:
+spec freeze -> build -> evidence -> verify -> fix до PASS.
+...
+```
+
+Вместо `...` подставь описание задачи текстом или `Файл задачи: <путь/к/файлу.md>`.
+
+## Installation
+
+Install the skill as a project skill in Claude Code.
+
+Copy this directory to:
 
 ```text
 .claude/skills/repo-task-proof-loop/
 ```
 
-If you use both tools on the same repository, install the skill in both locations or keep one canonical copy and sync it.
-
 ## Quick start
 
 1. Install the skill in your repository.
-2. Start your coding agent with the scenario prompt above that matches your task state.
+2. Start Claude Code with one of the prompts above that matches your task state.
 3. Let the skill initialize the repo-local task structure.
 4. Let the agent execute the workflow using role-separated subagents.
 5. Validate before sign-off.
 
 ## Manual helper commands
 
-The bundled helper script currently ships three CLI commands:
+The bundled helper script ships three CLI commands:
 
 - `init`
 - `validate`
@@ -133,14 +159,6 @@ The bundled helper script currently ships three CLI commands:
 The workflow phases `freeze`, `build`, `evidence`, `verify`, `fix`, and `run` are skill-level commands for the agent, not direct CLI subcommands in the current package.
 
 Set `SKILL_PATH` to the installed skill directory:
-
-### Codex example
-
-```bash
-SKILL_PATH=.agents/skills/repo-task-proof-loop
-```
-
-### Claude Code example
 
 ```bash
 SKILL_PATH=.claude/skills/repo-task-proof-loop
@@ -164,8 +182,8 @@ python3 "$SKILL_PATH/scripts/task_loop.py" init \
 
 Useful options:
 
-- `--guides auto|agents|claude|both|none`
-- `--install-subagents both|codex|claude|none`
+- `--guides auto|claude|none`
+- `--install-subagents claude|yes|none`
 - `--force`
 
 ### Validate a task bundle
@@ -248,7 +266,7 @@ If the task is still not `PASS`, the workflow loops:
 
 ## Subagent roles
 
-This skill installs four role-specific subagents for both Codex and Claude Code.
+This skill installs four role-specific subagents for Claude Code.
 
 ### `task-spec-freezer`
 
@@ -294,25 +312,17 @@ Boundaries:
 
 ## How the agent should use subagents
 
-### Codex
-
-Codex requires explicit delegation. The parent agent should clearly ask for one named child at a time.
+Use the installed project agents under `.claude/agents/`.
 
 Example shape:
 
 ```text
-Spawn one `task-verifier` agent for TASK_ID <TASK_ID>. Wait for it. It must verify the current codebase and write verdict.json and, if needed, problems.md.
+Use the `task-verifier` agent for TASK_ID <TASK_ID>. It must be a fresh verifier
+pass against the current codebase and must write verdict.json and, if needed,
+problems.md.
 ```
 
-### Claude Code
-
-Claude Code should use the installed project agents under `.claude/agents/`.
-
-Example shape:
-
-```text
-Use the `task-builder` agent for TASK_ID <TASK_ID> in BUILD mode. When implementation is done, keep the same child in EVIDENCE mode if possible.
-```
+For large tasks, prefer one child per role rather than a single general-purpose child.
 
 ## Guardrails
 
@@ -321,21 +331,7 @@ Use the `task-builder` agent for TASK_ID <TASK_ID> in BUILD mode. When implement
 - Keep implementer, verifier, and fixer roles separate.
 - Keep verifier passes fresh.
 - Prefer minimal diffs during repairs.
-- Preserve unrelated user guidance outside the managed blocks in `AGENTS.md` and `CLAUDE.md`.
-
-## What `init` does
-
-`init` is the strict schema bootstrap for any repository using this workflow.
-
-It will:
-
-- create `.agent/tasks/<TASK_ID>/`
-- seed the full artifact set, including placeholders
-- install project-scoped Codex and Claude subagents by default
-- insert or refresh managed workflow blocks in `AGENTS.md` and `CLAUDE.md`
-- reuse current repo guidance when present
-
-This makes it suitable for repositories that already rely on `AGENTS.md`, `CLAUDE.md`, or both.
+- Preserve unrelated user guidance outside the managed block in `CLAUDE.md`.
 
 ## Validation and smoke testing
 
@@ -347,16 +343,6 @@ python3 "$SKILL_PATH/scripts/verify_package.py"
 
 It checks the skill structure, initializes a temporary git repository, installs the task artifacts and subagents, and validates the generated task bundle.
 
-## Limitations
-
-This skill is designed to orchestrate subagent use, but actual subagent spawning behavior depends on the host product.
-
-- In Codex, the parent must explicitly request subagents.
-- In Claude Code, the parent should use the installed project agents.
-- If a platform cannot continue the same builder child into evidence mode, the workflow falls back to a second builder child in evidence-only mode.
-
-The skill is honest about this boundary. It packages the workflow, role prompts, and repo-local conventions so the parent agent can execute the loop reliably.
-
 ## Repository contents in this package
 
 ```text
@@ -364,19 +350,7 @@ repo-task-proof-loop/
   README.md
   SKILL.md
   VERIFICATION.md
-  agents/openai.yaml
   assets/
   references/
   scripts/
 ```
-
-## Publishing note
-
-This repository is ready to publish as a skill package. The most important things to preserve are:
-
-- the exact skill directory name: `repo-task-proof-loop`
-- the repo-local artifact contract under `.agent/tasks/<TASK_ID>/`
-- the role-separated subagent files
-- the managed workflow blocks in `AGENTS.md` and `CLAUDE.md`
-
-If you extend the package later, keep the verifier and fixer roles separate.

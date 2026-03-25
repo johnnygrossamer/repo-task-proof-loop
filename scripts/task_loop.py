@@ -114,7 +114,7 @@ def discover_guidance_files(repo_root: Path, current: Path) -> list[Path]:
     found: list[Path] = []
     seen: set[Path] = set()
     for directory in path_chain(repo_root, current):
-        for filename in ("AGENTS.md", "CLAUDE.md"):
+        for filename in ("CLAUDE.md",):
             candidate = directory / filename
             if candidate.exists():
                 resolved = candidate.resolve()
@@ -236,23 +236,6 @@ def install_task_files(task_dir: Path, context: dict[str, str], *, force: bool =
     return created
 
 
-def install_codex_agents(repo_root: Path) -> list[str]:
-    target_dir = repo_root / ".codex" / "agents"
-    target_dir.mkdir(parents=True, exist_ok=True)
-    written: list[str] = []
-    for template_name in (
-        "task-spec-freezer.toml.tmpl",
-        "task-builder.toml.tmpl",
-        "task-verifier.toml.tmpl",
-        "task-fixer.toml.tmpl",
-    ):
-        content = (TEMPLATES_DIR / "codex" / template_name).read_text(encoding="utf-8")
-        target = target_dir / template_name.replace(".tmpl", "")
-        target.write_text(content, encoding="utf-8")
-        written.append(str(target))
-    return written
-
-
 def install_claude_agents(repo_root: Path) -> list[str]:
     target_dir = repo_root / ".claude" / "agents"
     target_dir.mkdir(parents=True, exist_ok=True)
@@ -273,24 +256,12 @@ def install_claude_agents(repo_root: Path) -> list[str]:
 def update_guides(repo_root: Path, guides: str) -> dict[str, str]:
     actions: dict[str, str] = {}
 
-    guide_targets: list[tuple[Path, str]] = []
-    if guides in {"auto", "both", "agents"}:
-        guide_targets.append((repo_root / "AGENTS.md", load_text_template("managed-block-agents.md.tmpl")))
-    if guides in {"auto", "both", "claude"}:
-        guide_targets.append((repo_root / "CLAUDE.md", load_text_template("managed-block-claude.md.tmpl")))
-
-    if guides == "auto":
-        existing = [path for path, _ in guide_targets if path.exists()]
-        if existing:
-            guide_targets = [(path, template) for path, template in guide_targets if path.exists()]
-        else:
-            # Create both when nothing exists.
-            pass
-
     if guides == "none":
         return actions
 
-    for path, template in guide_targets:
+    if guides in {"auto", "claude"}:
+        path = repo_root / "CLAUDE.md"
+        template = load_text_template("managed-block-claude.md.tmpl")
         action = upsert_managed_block(path, template)
         actions[str(path)] = action
 
@@ -375,9 +346,7 @@ def cmd_init(args: argparse.Namespace) -> int:
     created_files = install_task_files(task_dir, context, force=args.force)
 
     installed_agents: list[str] = []
-    if args.install_subagents in {"both", "codex"}:
-        installed_agents.extend(install_codex_agents(repo_root))
-    if args.install_subagents in {"both", "claude"}:
+    if args.install_subagents in {"claude", "yes"}:
         installed_agents.extend(install_claude_agents(repo_root))
 
     guide_actions = update_guides(repo_root, args.guides)
@@ -498,15 +467,15 @@ def build_parser() -> argparse.ArgumentParser:
     init_parser.add_argument("--repo-root", help="Optional working directory inside the repo. Defaults to the current directory.")
     init_parser.add_argument(
         "--guides",
-        choices=["auto", "agents", "claude", "both", "none"],
+        choices=["auto", "claude", "none"],
         default="auto",
-        help="Which guide files to create or update.",
+        help="Whether to create or update CLAUDE.md with a managed workflow block.",
     )
     init_parser.add_argument(
         "--install-subagents",
-        choices=["both", "codex", "claude", "none"],
-        default="both",
-        help="Which project-scoped subagent sets to install or refresh.",
+        choices=["claude", "yes", "none"],
+        default="claude",
+        help="Whether to install project-scoped Claude Code subagents.",
     )
     init_parser.add_argument("--force", action="store_true", help="Overwrite existing task artifact templates.")
     init_parser.set_defaults(func=cmd_init)

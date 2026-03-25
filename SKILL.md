@@ -1,11 +1,10 @@
 ---
 name: repo-task-proof-loop
-description: Repo-local workflow skill for large coding tasks. Initializes .agent/tasks/TASK_ID artifacts, installs project-scoped Codex and Claude subagents, updates AGENTS.md and CLAUDE.md with the workflow, and runs a spec-freeze → build → evidence → verify → fix loop with fresh-session verification.
+description: Repo-local workflow skill for large coding tasks. Initializes .agent/tasks/TASK_ID artifacts, installs project-scoped Claude Code subagents, updates CLAUDE.md with the workflow, and runs a spec-freeze → build → evidence → verify → fix loop with fresh-session verification.
 license: Apache-2.0
-compatibility: Skills-compatible coding agents. Integrates with Codex and Claude Code project-scoped subagents. Bundled scripts require Python 3.10+.
+compatibility: Claude Code with project-scoped subagents. Bundled scripts require Python 3.10+.
 metadata:
-  author: OpenAI
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # Repo Task Proof Loop
@@ -20,8 +19,8 @@ When the examples below mention `scripts/task_loop.py`, that path is relative to
 
 1. Initializes a strict repo-local task folder under `.agent/tasks/<TASK_ID>/`
 2. Seeds or updates the required artifact files
-3. Installs project-scoped Codex and Claude subagent templates into `.codex/agents/` and `.claude/agents/`
-4. Updates `AGENTS.md` and `CLAUDE.md` with a managed block that explains the workflow
+3. Installs project-scoped Claude Code subagent templates into `.claude/agents/`
+4. Updates `CLAUDE.md` with a managed block that explains the workflow
 5. Guides the agent through a strict loop:
    - spec freeze
    - builder implementation
@@ -40,7 +39,7 @@ See:
 
 Treat the following words as commands when the user invokes this skill:
 
-- `init <TASK_ID>`: create `.agent/tasks/<TASK_ID>/`, install or refresh subagent templates, and update `AGENTS.md` / `CLAUDE.md`
+- `init <TASK_ID>`: create `.agent/tasks/<TASK_ID>/`, install or refresh subagent templates, and update `CLAUDE.md`
 - `freeze <TASK_ID>`: create or refine `spec.md` from the user task, task file, and repo guidance
 - `build <TASK_ID>`: implement the task against the frozen spec
 - `evidence <TASK_ID>`: create or refresh `evidence.md`, `evidence.json`, and raw artifacts without changing production code
@@ -77,14 +76,14 @@ The initializer will:
 - resolve the repo root
 - create `.agent/tasks/<TASK_ID>/`
 - create all required artifacts, including placeholders under `raw/`
-- install project-scoped subagent files
-- insert or refresh managed workflow blocks in `AGENTS.md` and `CLAUDE.md`
+- install project-scoped Claude Code subagent files into `.claude/agents/`
+- insert or refresh the managed workflow block in `CLAUDE.md`
 
 Treat `init` as a serial prerequisite. Never overlap it with `freeze`, `build`, `evidence`, `verify`, `fix`, or child-agent spawning.
 
 ## Heavy-task default workflow
 
-For large tasks, prefer subagents when the product supports them.
+For large tasks, prefer subagents.
 
 ### Preferred sequence
 
@@ -97,11 +96,11 @@ For large tasks, prefer subagents when the product supports them.
 7. Spawn one fresh verifier subagent again
 8. Repeat steps 6-7 until the verifier returns `PASS` or the user stops the loop
 
-### Platform behavior
+### Claude Code behavior
 
-- In Codex, explicitly ask for subagents. Do not assume they spawn automatically.
-- In Claude Code, prefer the installed project subagents from `.claude/agents/`. If the platform cannot continue the same builder child session for the evidence step, run a new builder subagent in evidence-only mode.
-- If subagents are unavailable, preserve the same role separation across separate sessions or clear mode changes in the current session.
+Prefer the installed project subagents from `.claude/agents/`. If the platform cannot continue the same builder child session for the evidence step, run a new builder subagent in evidence-only mode.
+
+If subagents are unavailable, preserve the same role separation across separate sessions or clear mode changes in the current session.
 
 Use the exact role prompts from `references/COMMANDS.md`.
 
@@ -203,4 +202,4 @@ scripts/task_loop.py status --task-id <TASK_ID>
 - Separate evaluator and fixer roles
 - Keep the verifier fresh
 - Prefer the smallest defensible diffs during fixes
-- Preserve existing user guidance outside the managed blocks in `AGENTS.md` and `CLAUDE.md`
+- Preserve existing user guidance outside the managed block in `CLAUDE.md`

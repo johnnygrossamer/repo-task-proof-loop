@@ -5,17 +5,7 @@ When the examples below mention `scripts/task_loop.py`, that path is relative to
 
 This skill is designed to be portable, but the repository-local artifacts and subagent files it creates must stay in the target repository.
 
-## Recommended install locations
-
-### Codex
-
-Project skill:
-- `.agents/skills/repo-task-proof-loop/`
-
-Personal skill:
-- `$HOME/.agents/skills/repo-task-proof-loop/`
-
-### Claude Code
+## Recommended install location
 
 Project skill:
 - `.claude/skills/repo-task-proof-loop/`
@@ -23,7 +13,7 @@ Project skill:
 Personal skill:
 - `~/.claude/skills/repo-task-proof-loop/`
 
-The same skill directory can be reused in either product. The initialization script writes repo-local workflow files into the current repository, not into the skill directory.
+The initialization script writes repo-local workflow files into the current repository, not into the skill directory.
 
 ## Repo files created by `init`
 
@@ -45,12 +35,6 @@ The same skill directory can be reused in either product. The initialization scr
 The initializer also creates or refreshes these project-level integration files:
 
 ```text
-.codex/agents/
-  task-spec-freezer.toml
-  task-builder.toml
-  task-verifier.toml
-  task-fixer.toml
-
 .claude/agents/
   task-spec-freezer.md
   task-builder.md
@@ -58,10 +42,7 @@ The initializer also creates or refreshes these project-level integration files:
   task-fixer.md
 ```
 
-And it inserts a managed workflow block into:
-
-- `AGENTS.md`
-- `CLAUDE.md`
+And it inserts a managed workflow block into `CLAUDE.md`.
 
 The managed block is replaced in place on re-run, so user-authored content outside the managed markers is preserved.
 
@@ -85,21 +66,17 @@ Seed the task from inline text:
 scripts/task_loop.py init --task-id my-task --task-text "Implement feature X"
 ```
 
-Control which guide files are created or updated:
+Control whether the guide file is created or updated:
 
 ```bash
 scripts/task_loop.py init --task-id my-task --guides auto
-scripts/task_loop.py init --task-id my-task --guides both
-scripts/task_loop.py init --task-id my-task --guides agents
 scripts/task_loop.py init --task-id my-task --guides claude
 scripts/task_loop.py init --task-id my-task --guides none
 ```
 
-Control which project subagent sets are installed:
+Control whether project subagents are installed:
 
 ```bash
-scripts/task_loop.py init --task-id my-task --install-subagents both
-scripts/task_loop.py init --task-id my-task --install-subagents codex
 scripts/task_loop.py init --task-id my-task --install-subagents claude
 scripts/task_loop.py init --task-id my-task --install-subagents none
 ```

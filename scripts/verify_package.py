@@ -74,9 +74,9 @@ def main() -> int:
                 "--task-text",
                 "Implement a demo task.",
                 "--guides",
-                "both",
+                "claude",
                 "--install-subagents",
-                "both",
+                "claude",
             ],
             repo,
         )
@@ -112,9 +112,7 @@ def main() -> int:
             repo / ".agent" / "tasks" / "demo-task" / "evidence.json",
             repo / ".agent" / "tasks" / "demo-task" / "verdict.json",
             repo / ".agent" / "tasks" / "demo-task" / "raw" / "screenshot-1.png",
-            repo / ".codex" / "agents" / "task-spec-freezer.toml",
             repo / ".claude" / "agents" / "task-spec-freezer.md",
-            repo / "AGENTS.md",
             repo / "CLAUDE.md",
         ]
         for path in required_paths:

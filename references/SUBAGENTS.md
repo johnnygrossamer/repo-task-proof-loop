@@ -1,19 +1,8 @@
 # Subagent integration
 
-This skill installs project-scoped subagent templates for both Codex and Claude Code.
+This skill installs project-scoped subagent templates for Claude Code.
 
 ## Installed files
-
-### Codex
-
-```text
-.codex/agents/task-spec-freezer.toml
-.codex/agents/task-builder.toml
-.codex/agents/task-verifier.toml
-.codex/agents/task-fixer.toml
-```
-
-### Claude Code
 
 ```text
 .claude/agents/task-spec-freezer.md
@@ -71,22 +60,6 @@ Hard boundaries:
 - Must regenerate evidence after the fix
 - Must not write final sign-off
 
-## Codex invocation pattern
-
-Use explicit delegation language. The parent should ask Codex to spawn one named child, wait for it, and then continue.
-Do not spawn any child until `init <TASK_ID>` has finished and `.agent/tasks/<TASK_ID>/spec.md` exists.
-Do not batch `init` with other commands or tool calls.
-
-Suggested shape:
-
-```text
-Spawn one `task-spec-freezer` agent for TASK_ID <TASK_ID>. Wait for it. Tell it to freeze the spec in .agent/tasks/<TASK_ID>/spec.md using the repo guidance and the task source.
-```
-
-Repeat the same pattern for `task-builder`, `task-verifier`, and `task-fixer`.
-
-Keep delegation depth flat. Use one child per role at a time.
-
 ## Claude Code invocation pattern
 
 Use the installed project subagents from `.claude/agents/`. The parent can either explicitly select the named agent or instruct Claude to use that agent for the next step.
@@ -98,6 +71,8 @@ Use the `task-verifier` agent for TASK_ID <TASK_ID>. It must be a fresh verifier
 ```
 
 For large tasks, prefer one child per role rather than a single general-purpose child.
+
+Do not spawn any child until `init <TASK_ID>` has finished and `.agent/tasks/<TASK_ID>/spec.md` exists.
 
 ## Same-session evidence packing
 
