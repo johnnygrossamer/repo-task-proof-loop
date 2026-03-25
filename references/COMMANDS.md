@@ -25,7 +25,6 @@ You are in SPEC FREEZE mode for TASK_ID <TASK_ID>.
 
 Read:
 - .agent/tasks/<TASK_ID>/spec.md
-- AGENTS.md if present
 - CLAUDE.md if present
 - any user-provided task file or inline task text
 - only the minimum relevant code needed to freeze the spec
@@ -53,7 +52,6 @@ You are in BUILD mode for TASK_ID <TASK_ID>.
 
 Read:
 - .agent/tasks/<TASK_ID>/spec.md
-- AGENTS.md if present
 - CLAUDE.md if present
 
 Your job:

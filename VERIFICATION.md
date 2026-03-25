@@ -15,8 +15,8 @@ python scripts/verify_package.py
 - `scripts/task_loop.py init --task-id demo-task --task-text "Implement a demo task."` succeeds inside a fresh temporary git repository
 - `scripts/task_loop.py validate --task-id demo-task` returns `valid: true`
 - the expected repo-local artifacts are created under `.agent/tasks/demo-task/`
-- project-scoped subagent files are created under `.codex/agents/` and `.claude/agents/`
-- `AGENTS.md` and `CLAUDE.md` are created with managed workflow blocks
+- project-scoped subagent files are created under `.claude/agents/`
+- `CLAUDE.md` is created with a managed workflow block
 
 ## Last local result
 
